@@ -1,0 +1,82 @@
+@model ProductFormModel
+@inject IOptions<ApiOptions> Api
+@{
+    ViewData["Title"] = "Edit product";
+    var baseUrl = Api.Value.BaseUrl.TrimEnd('/');
+}
+
+<h1 class="h3 mb-3">Edit product</h1>
+
+<div class="row">
+    <div class="col-lg-7">
+        <div class="card card-body">
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" rows="3" class="form-control"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col mb-3">
+                        <label asp-for="Price" class="form-label"></label>
+                        <input asp-for="Price" type="number" step="0.01" min="0" class="form-control" />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+                    <div class="col mb-3">
+                        <label asp-for="Stock" class="form-label"></label>
+                        <input asp-for="Stock" type="number" step="1" min="0" class="form-control" />
+                        <span asp-validation-for="Stock" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Back to list</a>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card card-body">
+            <h2 class="h6">Image</h2>
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <img src="@(baseUrl + Model.ImagePath)" alt="@Model.Name"
+                     class="mb-2" style="width:100%;max-width:240px;border-radius:10px;object-fit:cover;" />
+                <form asp-action="RemoveImage" asp-route-id="@Model.Id" method="post" class="mb-3"
+                      onsubmit="return confirm('Remove this product\'s image?');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove image</button>
+                </form>
+            }
+            else
+            {
+                <p class="text-muted">No image uploaded.</p>
+            }
+
+            <form asp-action="UploadImage" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="mb-2">
+                    <input type="file" name="file" accept="image/*" class="form-control" required />
+                </div>
+                <button type="submit" class="btn btn-sm btn-primary">Upload</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
